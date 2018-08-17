@@ -1,16 +1,13 @@
-slackit
-=======
-Slack File Upload Gateway
-
 Abstract
 --------
-This service allows anonymously upload file attachments to specified Slack channel using `curl`. The use case is to allow customers and support engineers to post logs or config files directly from remote servers without uploading and downloading files.
+This service allows anonymously upload file attachments to specified Slack channel using `curl`. The use case is to allow field personnel or customers to post logs or config files directly from remote servers without uploading and downloading files.
 
 Example usage
 -------------
-curl -F file=@somelog.txt https://slackit.snakeoil.com/customerA
+curl -F file=@somelog.txt https://slackit.snakeoil.com/custchannel
 
 curl -F file=@config.json https://slackit.snakeoil.com/engineering
+
 
 Running the gateway service
 ---------------------------
@@ -20,7 +17,7 @@ docker run --rm -e APITOK="xoxp-slackit-token-123456" -e HOSTN="slackit.snakeoil
 ```
 
 - You need to pass APITOK variable containing Slack API Token
-- You need to pass HOSTN variable containing FQDN of the HTTPS endpoint, used for Lets Encrypt host policy and usage msg
-- You need to expose port 80 and 443 on the host lets Encrypt auto cert engine to work correctly
+- You need to pass HOSTN variable containing FQDN of remote URL endpoint, used for Lets Encrypt host policy and usage msg
+- You need to expose both ports 80 and 443 on the host for Encrypt auto cert engine to work correctly
 - You need to pass location of CA cerets so that communication with Slack API endpoint can be established, typically /etc/pki 
-- Optionally you can map a host directory to be used for specified DATADIR. By default tmp inside the container will be used. Both LetsEncrypt certificate as well as file attachments are cached in this directory.
+- Optionally you can map a host directory to be used for specified DATADIR. By default tmp inside the container will be used. Datadir is used for caching LetsEncrypt key, certificate and temporary storage for uploading files.
