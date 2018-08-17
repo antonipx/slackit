@@ -13,6 +13,7 @@ import (
     "os"
     "time"
     "strconv"
+    "strings"
     "net/http"
     "crypto/tls"
     "context"
@@ -35,7 +36,9 @@ func msg(w http.ResponseWriter, r *http.Request, format string, args ...interfac
 }
 
 func slackit(w http.ResponseWriter, r *http.Request) {
-    if r.ContentLength == 0 || len(r.URL.Path[1:]) == 0 { 
+    channel_name := strings.Replace(r.URL.Path, "/", "", -1)
+
+    if r.ContentLength == 0 || len(channel_name) == 0 {
         msg(w, r, "ERROR: ContentLength: %d Path: %s\n", r.ContentLength, r.URL.Path)
         fmt.Fprintf(w, "Usage: curl -F \"file=@myfile.ext\" https://" + hostn + "/channel-name\r\n")
         return
@@ -63,35 +66,35 @@ func slackit(w http.ResponseWriter, r *http.Request) {
     io.Copy(file, u)
 
     u.Close()
-    file.Close() 
+    file.Close()
 
-    msg(w, r, "Received file %s (%d) for channel %s\n", h.Filename, h.Size, r.URL.Path[1:])
+    msg(w, r, "Received file %s (%d) for channel %s\n", h.Filename, h.Size, channel_name)
 
     sc := slack.New(apitok)
-    
+
     channel := make([]string, 1)
-    
+
     conv_params := slack.GetConversationsParameters{
         Limit: 1000,
         Types: []string{"public_channel", "private_channel"},
     }
-    
+
     conv, _, err := sc.GetConversations(&conv_params)
     if err != nil {
         msg(w, r, "ERROR, Unable to get Slack channels, %s\n", err)
         return
     }
     for _, c := range conv {
-        if c.Name == r.URL.Path[1:] {
+        if c.Name == channel_name {
             channel[0]=c.ID
         }
     }
 
     if len(channel[0]) != 9 {
-        msg(w, r, "Error: Unable to find channel ID for %s, [%s]\r\n", r.URL.Path[1:], channel[0])
+        msg(w, r, "Error: Unable to find channel ID for %s, [%s]\r\n", channel_name, channel[0])
         return
     }
-    
+
     params := slack.FileUploadParameters{
         File: upload_file_path,
         Channels:  channel,
@@ -102,7 +105,7 @@ func slackit(w http.ResponseWriter, r *http.Request) {
         msg(w, r, "ERROR: Unable to upload file %s to Slack, %s\r\n", h.Filename, err)
         return
     }
-    msg(w, r, "Uploaded file %s [%s] to channel %s [%s]\r\n", s.Name, s.ID, r.URL.Path[1:], channel[0])
+    msg(w, r, "Uploaded file %s [%s] to channel %s [%s]\r\n", s.Name, s.ID, channel_name, channel[0])
 
 }
 
@@ -122,7 +125,7 @@ func main() {
     var acm *autocert.Manager
     var ssl *http.Server
     var http *http.Server
-    
+
     apitok = os.Getenv("APITOK")
     if len(apitok) == 0 {
         log.Fatal("APITOK env var is not defined")
@@ -179,7 +182,7 @@ func main() {
     if acm != nil {
         http.Handler = acm.HTTPHandler(http.Handler)
     }
-    
+
     http.Addr = ":8080"
 
     log.Print("Starting HTTP server on port", http.Addr)
