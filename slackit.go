@@ -147,7 +147,6 @@ func main() {
     }
 
     datadir = os.TempDir()
-    os.MkdirAll(datadir, 1777)
 
     hostPolicy := func(ctx context.Context, host string) error {
         allowedHost := hostn
