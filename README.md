@@ -8,6 +8,7 @@ curl -F file=@logfile.txt https://slackit.snakeoil.com/custchannel
 
 curl -F file=@config.json https://slackit.snakeoil.com/engineering
 
+echo "Hello World" | curl -F file=@- https://slackit.snakeoil.com/somechannel
 
 Running the gateway service
 ---------------------------
