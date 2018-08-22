@@ -10,6 +10,10 @@ curl -F file=@config.json https://slackit.snakeoil.com/engineering
 
 echo "Hello World" | curl -F file=@- https://slackit.snakeoil.com/somechannel
 
+curl -F "file=@log.txt;filename=$(hostname)-log.txt" ....
+
+cat somefile | curl -F "file=@-;filename=foobar.txt" ....
+
 Running the gateway service
 ---------------------------
 
