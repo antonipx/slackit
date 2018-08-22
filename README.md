@@ -13,11 +13,12 @@ Running the gateway service
 ---------------------------
 
 ```
-docker run --rm -e APITOK="xoxp-slackit-token-123456" -e HOSTN="slackit.snakeoil.com" -e DATADIR=/data -v /hostdir:/data -v /etc/pki:/etc/pki -p 80:8080 -p 443:8443 --name slackit -d antonipx/slackit
+docker run --rm -e APITOK="xoxp-slackit-token-123456" -e HOSTN="slackit.snakeoil.com" -v /etc/pki:/etc/pki -p 80:8080 -p 443:8443 --name slackit -d antonipx/slackit
 ```
 
-- You need to pass APITOK variable containing Slack API Token
-- You need to pass HOSTN variable containing FQDN of remote URL endpoint, used for Lets Encrypt host policy and usage msg
-- You need to expose both ports 80 and 443 on the host for Encrypt auto cert engine to work correctly
-- You need to pass location of CA cerets so that communication with Slack API endpoint can be established, typically /etc/pki 
-- Optionally you can map a host directory to be used for specified DATADIR. By default tmp inside the container will be used. Datadir is used for caching LetsEncrypt key, certificate and temporary storage for uploading files. Make sure the container user has rights to create and delete files in the directory.
+- You need to pass APITOK variable containing Slack Legacy API Token.
+- You need to pass HOSTN variable containing FQDN of remote URL endpoint, used for Lets Encrypt host policy and usage msg.
+- You need to expose both ports 80 and 443 on the host for Encrypt auto cert engine to work correctly. 
+- You need to pass location of CA cerets so that communication with Slack API endpoint can be established, typically /etc/pki.
+- Slackit uses /tmp to cache LetsEncrypt certificate and file uploads. Optionally you can map it to a an external directory
+  on the host to preserve the certs between restarts.

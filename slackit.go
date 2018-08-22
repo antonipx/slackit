@@ -39,7 +39,7 @@ func slackit(w http.ResponseWriter, r *http.Request) {
     channel_name := strings.Replace(r.URL.Path, "/", "", -1)
 
     if r.ContentLength == 0 || len(channel_name) == 0 {
-        msg(w, r, "ERROR: ContentLength: %d Path: %s\n", r.ContentLength, r.URL.Path)
+        msg(w, r, "ERROR: ContentLength: %d Path: %s\r\n\r\n", r.ContentLength, r.URL.Path)
         fmt.Fprintf(w, "Usage: curl -F \"file=@myfile.ext\" https://" + hostn + "/channel-name\r\n")
         return
     }
@@ -58,7 +58,7 @@ func slackit(w http.ResponseWriter, r *http.Request) {
     os.MkdirAll(upload_file_dir, 0755)
     defer os.RemoveAll(upload_file_dir)
 
-    file, err := os.OpenFile(upload_file_path, os.O_WRONLY|os.O_CREATE, 0644)
+    file, err := os.OpenFile(upload_file_path, os.O_WRONLY|os.O_CREATE, 0600)
     if err != nil {
         msg(w, r, "ERROR: Unable to create file %s, %s\n", h.Filename, err)
         return
@@ -146,10 +146,8 @@ func main() {
         timeout = 3600
     }
 
-    datadir = os.Getenv("DATADIR")
-    if len(datadir) == 0 {
-        datadir = os.TempDir()
-    }
+    datadir = os.TempDir()
+    os.MkdirAll(datadir, 1777)
 
     hostPolicy := func(ctx context.Context, host string) error {
         allowedHost := hostn
