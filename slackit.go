@@ -126,6 +126,15 @@ func main() {
     var ssl *http.Server
     var http *http.Server
 
+    datadir = os.TempDir()
+
+    if len(os.Args) > 1 && os.Args[1] == "mktmp" {
+        fmt.Println("Creating temp dir", datadir)
+        os.MkdirAll(datadir, 0777)
+        os.Chmod(datadir, 0777)
+        return 
+    }
+
     apitok = os.Getenv("APITOK")
     if len(apitok) == 0 {
         log.Fatal("APITOK env var is not defined")
@@ -146,7 +155,6 @@ func main() {
         timeout = 3600
     }
 
-    datadir = os.TempDir()
 
     hostPolicy := func(ctx context.Context, host string) error {
         allowedHost := hostn
