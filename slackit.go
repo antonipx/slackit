@@ -128,6 +128,7 @@ func main() {
 
     datadir = os.TempDir()
 
+    // When building from scratch container /tmp permissions need to be fixed
     if len(os.Args) > 1 && os.Args[1] == "mktmp" {
         fmt.Println("Creating temp dir", datadir)
         os.MkdirAll(datadir, 0777)
